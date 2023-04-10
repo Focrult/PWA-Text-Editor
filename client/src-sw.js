@@ -24,8 +24,17 @@ warmStrategyCache({
   strategy: pageCache,
 });
 
-registerRoute(({ request }) => request.mode === 'navigate', pageCache);
-
+//registerRoute(({ request }) => request.mode === 'navigate', pageCache);
+registerRoute(
+  ({ request }) => request.mode === 'navigate', 
+  async ({ event }) => {
+    try {
+      return await pageCache.handle({ event });
+    } catch (error) {
+      return offlineFallback({ event, urls: ['/index.html', '/'] });
+    }
+  }
+);
 // TODO: Implement asset caching
 registerRoute(
   ({ request }) => ['style', 'script', 'worker'].includes(request.destination),
